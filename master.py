@@ -8,10 +8,10 @@ with open('settings.txt', 'rt') as f:
     inp = f.read()
 
 inp = inp.split('\n')
-inp[0] = float(inp[0])
 for i in range(len(inp)):
     if inp[i] == '':
         del inp[i]
+inp[0] = float(inp[0])
 
 for i in range(3, len(inp)):
     with open('start.pickle', 'wb') as f:

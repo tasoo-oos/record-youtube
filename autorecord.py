@@ -80,7 +80,7 @@ class TwitchRecorder:
                 print(self.username, "녹화시작")
                 filename = datetime.datetime.now().strftime("%Y%m%d") + " " \
                            + info['stream']['channel']['display_name'] + ' ' \
-                           + info['stream']['channel']['status'] + ".mp4"
+                           + info["stream"]['created_at'] + ".mp4"
 
                 recorded_filename = os.path.join(self.recorded_path, filename)
 
@@ -99,7 +99,7 @@ class TwitchRecorder:
                      self.quality, "-o", recorded_filename])
 
                 if os.path.isfile(recorded_filename) is False:
-                    print('채널이 ', self.quality, ' 화질을 지원하지 않으므로 최고화질로 녹화')
+                    print('채널이 ', self.quality, ' 화질을 지원하지 않으므로 최고화질로 녹화합니다.')
                     subprocess.call(
                         ["streamlink", "--twitch-disable-hosting", "--twitch-disable-ads", "twitch.tv/" + self.username,
                          'best', "-o", recorded_filename])
@@ -148,7 +148,7 @@ def main():
         while os.path.isfile(os.path.join(os.getcwd(), 'loga' + str(i) + '.txt')):
             i += 1
         with open('loga' + str(i) + '.txt', 'wt') as f:
-            f.write(str(e))
+            f.write(str(sys.exc_info()))
         print(e)
         print('오류 발생\n',
               '알 수 없는 오류가 발생했다면\n',

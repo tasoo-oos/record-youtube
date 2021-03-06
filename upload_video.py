@@ -193,9 +193,6 @@ if __name__ == '__main__':
             except FileNotFoundError:
                 pass
 
-        if not os.path.exists(args.file):
-            exit("Please specify a valid file using the --file= parameter.")
-
         youtube = get_authenticated_service(args)
         try:
             initialize_upload(youtube, args)
@@ -207,7 +204,7 @@ if __name__ == '__main__':
         while os.path.isfile(os.path.join(os.getcwd(), 'loga' + str(i) + '.txt')):
             i += 1
         with open('logb' + str(i) + '.txt', 'wt') as f:
-            f.write(str(e))
+            f.write(str(sys.exc_info()))
         print(e)
         print('오류 발생\n',
               '알 수 없는 오류가 발생했다면\n',
