@@ -5,13 +5,17 @@ automatically record twitch streams and upload it on youtube
 
 제가 바빠서 업뎃은 많지 않을겁니다
 
-I am busy so don`t expect updates or bugfixes so much plz.
+I am busy so updates or bugfixes will be hard to see.
 
 ## requirements
+만약 아직 스트림링크가 없다면 https://streamlink.github.io/ 에서 다운받으십시오. 환경변수에 프로그램이 추가되어야 합니다.
+
+if you don't have streamlink, download it in https://streamlink.github.io/. The program must be added to the environment variable.
+
 
 이 프로그램을 쓰려면 세개의 exe파일을 한 폴더에 넣고 거기에 settings.txt 를 만들어야 합니다
 
-you need to put three .exe`s in one folder and make settings.txt in it.
+you need to put three .exe files in one folder and make settings.txt in it.
 
 첫번째 줄엔 몇 초에 한번 방송이 켜져있나 탐색할지를, 
 두번째 줄엔 녹화하고 싶은 화질을, 
