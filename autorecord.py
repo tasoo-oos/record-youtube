@@ -6,6 +6,7 @@ import datetime
 import pickle
 import argparse
 import sys
+import traceback
 
 
 # pyinstaller --onefile autorecord.py
@@ -148,7 +149,7 @@ def main():
         while os.path.isfile(os.path.join(os.getcwd(), 'loga' + str(i) + '.txt')):
             i += 1
         with open('loga' + str(i) + '.txt', 'wt') as f:
-            f.write(str(sys.exc_info()))
+            f.write(traceback.format_exc())
         print(e)
         print('오류 발생\n',
               '알 수 없는 오류가 발생했다면\n',
