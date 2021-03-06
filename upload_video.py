@@ -177,11 +177,11 @@ if __name__ == '__main__':
     '''
 
     """
-    arg = argparse.Namespace(auth_host_name='localhost', noauth_local_webserver=False,
-                             auth_host_port=[8080, 8090], logging_level='ERROR',
-                             file=os.getcwd() + '\\test.mp4', title='test',
-                             description='', category='22',
-                             keywords='', privacyStatus='unlisted')
+    args = argparse.Namespace(auth_host_name='localhost', noauth_local_webserver=False,
+                              auth_host_port=[8080, 8090], logging_level='ERROR',
+                              file=os.getcwd() + '\\test.mp4', title='test',
+                              description='', category='22',
+                              keywords='', privacyStatus='unlisted')
     """
 
     try:
@@ -214,5 +214,3 @@ if __name__ == '__main__':
               '이 프로그램은 10초 후에 종료됩니다')
         time.sleep(10)
         raise
-
-
