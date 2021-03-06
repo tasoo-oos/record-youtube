@@ -11,7 +11,7 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.file import Storage
-from oauth2client.tools import argparser, run_flow
+from oauth2client.tools import run_flow
 
 # pyinstaller --onefile upload_video.py
 
@@ -184,10 +184,14 @@ if __name__ == '__main__':
     """
 
     try:
-        with open('temp.pickle', 'rb') as f:
-            args = pickle.load(f)
-
-        os.remove('temp.pickle')
+        try:
+            with open('temp.pickle', 'rb') as f:
+                args = pickle.load(f)
+        finally:
+            try:
+                os.remove('temp.pickle')
+            except FileNotFoundError:
+                pass
 
         if not os.path.exists(args.file):
             exit("Please specify a valid file using the --file= parameter.")
@@ -204,7 +208,13 @@ if __name__ == '__main__':
             i += 1
         with open('logb' + str(i) + '.txt', 'wt') as f:
             f.write(str(e))
-        time.sleep(60)
+        print(e)
+        print('오류 발생\n',
+              '알 수 없는 오류가 발생했다면\n',
+              'logb' + str(i) + '.txt 및 오류가 난 상황 등을\n',
+              'https://github.com/dc-creator/record-youtube/issues 에 올려주세요\n',
+              '이 프로그램은 10초 후에 종료됩니다')
+        time.sleep(10)
         raise
 
 

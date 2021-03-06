@@ -5,6 +5,7 @@ import subprocess
 import datetime
 import pickle
 import argparse
+import sys
 
 
 # pyinstaller --onefile autorecord.py
@@ -14,21 +15,15 @@ class TwitchRecorder:
     def __init__(self):
         # global configuration
         self.client_id = "jzkbprff40iqj646a697cyrvl0zt2m6"  # don't change this
-        # get oauth token value by typing `streamlink --twitch-oauth-authenticate` in terminal
-        self.refresh = 60.0
-        self.recorded_path = ""
+        self.refresh = None
+        self.recorded_path = os.getcwd()
 
         # user configuration
-        self.username = ""
-        self.quality = "480p"
-        self.videostatus = ""
+        self.username = None
+        self.quality = None
+        self.videostatus = None
 
     def run(self):
-        # create directory for recordedPath and processedPath if not exist
-        self.recorded_path = os.getcwd()
-        if os.path.isdir(self.recorded_path) is False:
-            os.makedirs(self.recorded_path)
-
         '''
         # make sure the interval to check user availability is not less than 15 seconds
         if self.refresh < 15:
@@ -50,7 +45,6 @@ class TwitchRecorder:
         try:
             h = {"Client-ID": self.client_id, "Accept": "application/vnd.twitchtv.v5+json"}
             r = requests.get(f"https://api.twitch.tv/kraken/users?login={self.username}", headers=h)
-            a = r.json()
             user_id = r.json().get("users", [{}])[0].get("_id", "")
 
             r = requests.get(f"https://api.twitch.tv/kraken/streams/{user_id}", headers=h, timeout=15)
@@ -70,18 +64,20 @@ class TwitchRecorder:
     def loopcheck(self):
         while True:
             status, info = self.check_user()
+
             if status == 2:
-                print("Username not found. Invalid username or typo. type again.")
-                self.username = input()
+                sys.exit('입력된 스트리머 아이디 ', self.username, '에 해당하는 채널이 없습니다')
+
             elif status == 3:
-                print(datetime.datetime.now().strftime("%Hh%Mm%Ss"), " ",
-                      "unexpected error. will try again in 1 minutes.")
+                print(datetime.datetime.now().strftime("%Hh%Mm%Ss"), "예상하지 못한 오류가 발생하여 1분 후에 탐색을 재개합니다")
                 time.sleep(60)
+
             elif status == 1:
-                print(self.username, "currently offline, checking again in", self.refresh, "seconds.")
+                print(self.username, "방송이 꺼져있습니다", self.refresh, "초 후에 다시탐색합니다.")
                 time.sleep(self.refresh)
+
             elif status == 0:
-                print(self.username, "online. Stream recording in session.")
+                print(self.username, "녹화시작")
                 filename = datetime.datetime.now().strftime("%Y%m%d") + " " \
                            + info['stream']['channel']['display_name'] + ' ' \
                            + info['stream']['channel']['status'] + ".mp4"
@@ -103,26 +99,26 @@ class TwitchRecorder:
                      self.quality, "-o", recorded_filename])
 
                 if os.path.isfile(recorded_filename) is False:
+                    print('채널이 ', self.quality, ' 화질을 지원하지 않으므로 최고화질로 녹화')
                     subprocess.call(
                         ["streamlink", "--twitch-disable-hosting", "--twitch-disable-ads", "twitch.tv/" + self.username,
                          'best', "-o", recorded_filename])
 
-                print("Recording stream is done.")
+                print("녹화 완료.")
                 arg = argparse.Namespace(auth_host_name='localhost', noauth_local_webserver=False,
                                          auth_host_port=[8080, 8090], logging_level='ERROR',
                                          file=recorded_filename, title=filename[:-4],
                                          description='', category='22',
                                          keywords='', privacyStatus=self.videostatus)
-                print(arg)
                 while True:
                     if not os.path.isfile(os.path.join(os.getcwd(), 'temp.pickle')):
                         with open('temp.pickle', 'wb') as f:
                             pickle.dump(arg, f)
                         break
-                    time.sleep(10)
                     print("temp.pickle 파일이 삭제되기를 기다리는중....\n만약 이 메세지가 계속 뜬다면 파일을 수동으로 지우십시오")
+                    time.sleep(5)
 
-                os.startfile(r'C:\Users\tasoo\OneDrive\Desktop\record\upload_video.exe')
+                os.startfile('upload_video.exe')
                 print('유투브 업로드용 프로그램 실행')
                 time.sleep(self.refresh)
 
@@ -131,9 +127,14 @@ def main():
     try:
         twitch_recorder = TwitchRecorder()
 
-        with open('start.pickle', 'rb') as f:
-            data = pickle.load(f)
-        os.remove('start.pickle')
+        try:
+            with open('start.pickle', 'rb') as f:
+                data = pickle.load(f)
+        finally:
+            try:
+                os.remove('start.pickle')
+            except FileNotFoundError:
+                pass
 
         twitch_recorder.refresh = data[0]
         twitch_recorder.quality = data[1]
@@ -149,7 +150,14 @@ def main():
         with open('loga' + str(i) + '.txt', 'wt') as f:
             f.write(str(e))
         print(e)
-        
+        print('오류 발생\n',
+              '알 수 없는 오류가 발생했다면\n',
+              'loga' + str(i) + '.txt 및 오류가 난 상황 등을\n',
+              'https://github.com/dc-creator/record-youtube/issues 에 올려주세요\n',
+              '이 프로그램은 10초 후에 종료됩니다')
+        time.sleep(10)
+        raise
+
 
 if __name__ == "__main__":
     main()
