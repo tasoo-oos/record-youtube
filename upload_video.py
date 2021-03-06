@@ -205,7 +205,7 @@ if __name__ == '__main__':
         while os.path.isfile(os.path.join(os.getcwd(), 'loga' + str(i) + '.txt')):
             i += 1
         with open('logb' + str(i) + '.txt', 'wt') as f:
-            f.write(f.write(traceback.format_exc()))
+            f.write(traceback.format_exc())
         print(e)
         print('오류 발생\n',
               '알 수 없는 오류가 발생했다면\n',
