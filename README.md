@@ -35,15 +35,23 @@ It is okay to have empty lines in middle.
 
 you also need to make client_secrets.json file and a few certification
 
-이를 위해 아래 사이트를 확인해주세요.
+녹화가 끝나고 영상을 유투브에 업로드할 때 프로그램이 몇몇 인증을 요구할겁니다
 
-please check link below to do that.
+after program finishes recording and uploading video to youtube, program is going to demand a few certification.
+
+client_secrets.json 파일을 만들거나 인증에 대해 더 자세한 정보를 확인하고 싶으시다면 아래 사이트를 확인해주세요.
+
+please check link below to make client_secrets.json or ger more specific information about certification..
 
 https://kminito.tistory.com/5
 
 이 모든 것이 끝났다면 master.exe 를 실행하시면 됩니다
 
 and lastly, execute master.exe
+
+다른 어떤 프로그램도 실행하지 않으셔도 됩니다
+
+you don't need to execute any other program
 
 
 ## reference
