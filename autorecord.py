@@ -7,6 +7,7 @@ import pickle
 import argparse
 import sys
 import traceback
+import random
 
 
 # pyinstaller --onefile autorecord.py
@@ -79,20 +80,14 @@ class TwitchRecorder:
 
             elif status == 0:
                 print(self.username, "녹화시작")
-                filename = datetime.datetime.now().strftime("%Y%m%d") + " " \
-                           + info['stream']['channel']['display_name'] + ' ' \
-                           + info["stream"]['created_at'] + ".mp4"
 
-                recorded_filename = os.path.join(self.recorded_path, filename)
-
-                if os.path.isfile(recorded_filename):
-                    i = 1
-                    original_filename = recorded_filename
-                    while True:
-                        i += 1
-                        recorded_filename = original_filename[:-4] + str(i) + original_filename[-4:]
-                        if not os.path.isfile(recorded_filename):
-                            break
+                while True:
+                    recorded_filename = ''
+                    for i in range(20):
+                        recorded_filename += random.choice('abcdefghijklmnopqrstuvwxyz')
+                    recorded_filename += '.mp4'
+                    if not os.path.isfile(recorded_filename):
+                        break
 
                 # start streamlink process
                 subprocess.call(
@@ -106,9 +101,13 @@ class TwitchRecorder:
                          'best', "-o", recorded_filename])
 
                 print("녹화 완료.")
+
+                videoname = info['stream']['created_at'][:10].replace('-', '') \
+                            + ' ' + info['stream']['channel']['display_name']
+
                 arg = argparse.Namespace(auth_host_name='localhost', noauth_local_webserver=False,
                                          auth_host_port=[8080, 8090], logging_level='ERROR',
-                                         file=recorded_filename, title=filename[:-4],
+                                         file=recorded_filename, title=videoname,
                                          description='', category='22',
                                          keywords='', privacyStatus=self.videostatus)
                 while True:
@@ -128,9 +127,13 @@ def main():
     try:
         twitch_recorder = TwitchRecorder()
 
+        data = [30.0, '480p', 'unlisted', 'sunnyglass55']
+
         try:
             with open('start.pickle', 'rb') as f:
                 data = pickle.load(f)
+        except FileNotFoundError:
+            pass
         finally:
             try:
                 os.remove('start.pickle')
