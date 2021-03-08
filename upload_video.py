@@ -133,14 +133,17 @@ def resumable_upload(insert_request, file):
     retry = 0
     while response is None:
         try:
-            print("Uploading file...")
+            print("파일 " + str(file) + " 업로드중...")
             status, response = insert_request.next_chunk()
             if response is not None:
                 if 'id' in response:
-                    print(("Video id '%s' was successfully uploaded." % response['id']))
-                    os.remove(file)
+                    print("Video id '%s' was successfully uploaded." % response['id'])
+                    print(file)
+                    print(os.path.isfile(file))
+                    os.unlink(file)
+                    print(os.path.isfile(file))
                 else:
-                    exit("The upload failed with an unexpected response: %s" % response)
+                    sys.exit("The upload failed with an unexpected response: %s" % response)
         except HttpError as e:
             if e.resp.status in RETRIABLE_STATUS_CODES:
                 error = "A retriable HTTP error %d occurred:\n%s" % (e.resp.status,
@@ -154,7 +157,7 @@ def resumable_upload(insert_request, file):
             print(error)
             retry += 1
             if retry > MAX_RETRIES:
-                exit("No longer attempting to retry.")
+                sys.exit(error + ", No longer attempting to retry.")
 
             max_sleep = 2 ** retry
             sleep_seconds = random.random() * max_sleep
@@ -198,7 +201,7 @@ if __name__ == '__main__':
         try:
             initialize_upload(youtube, args)
         except HttpError as e:
-            print(("An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)))
+            sys.exit("An HTTP error %d occurred:\n%s" % (e.resp.status, e.content))
 
     except Exception as e:
         i = 1
@@ -210,7 +213,8 @@ if __name__ == '__main__':
         print('오류 발생\n',
               '알 수 없는 오류가 발생했다면\n',
               'logb' + str(i) + '.txt 및 오류가 난 상황 등을\n',
-              'https://github.com/dc-creator/record-youtube/issues 에 올려주세요\n',
-              '이 프로그램은 10초 후에 종료됩니다')
+              'https://github.com/dc-creator/record-youtube/issues 에 올려주세요')
+
+    finally:
+        print('이 프로그램은 10초 후에 종료됩니다...')
         time.sleep(10)
-        raise
