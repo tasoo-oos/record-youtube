@@ -58,4 +58,6 @@ you don't need to execute any other program
 
 https://kminito.tistory.com/5
 
+https://www.godo.dev/tutorials/python-record-twitch/
+
 https://github.com/googleapis/google-api-python-client
