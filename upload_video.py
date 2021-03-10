@@ -72,6 +72,14 @@ https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
 
+def makelog(msg):
+    i = 1
+    while os.path.isfile(os.path.join(os.getcwd(), 'loga' + str(i) + '.txt')):
+        i += 1
+    with open('logb' + str(i) + '.txt', 'wt') as f:
+        f.write(msg)
+
+
 def get_authenticated_service(args):
     flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
                                    scope=YOUTUBE_UPLOAD_SCOPE,
@@ -143,7 +151,8 @@ def resumable_upload(insert_request, file):
                     os.unlink(file)
                     print(os.path.isfile(file))
                 else:
-                    sys.exit("The upload failed with an unexpected response: %s" % response)
+                    makelog("The upload failed with an unexpected response: %s" % response)
+                    sys.exit()
         except HttpError as e:
             if e.resp.status in RETRIABLE_STATUS_CODES:
                 error = "A retriable HTTP error %d occurred:\n%s" % (e.resp.status,
@@ -157,7 +166,8 @@ def resumable_upload(insert_request, file):
             print(error)
             retry += 1
             if retry > MAX_RETRIES:
-                sys.exit(error + ", No longer attempting to retry.")
+                makelog(error + ", No longer attempting to retry.")
+                sys.exit()
 
             max_sleep = 2 ** retry
             sleep_seconds = random.random() * max_sleep
@@ -187,6 +197,8 @@ if __name__ == '__main__':
                               keywords='', privacyStatus='unlisted')
     """
 
+    msg = None
+
     try:
         try:
             with open('temp.pickle', 'rb') as f:
@@ -197,22 +209,26 @@ if __name__ == '__main__':
             except FileNotFoundError:
                 pass
 
+        if not os.path.isfile(os.path.join(os.getcwd(), args.file)):
+            msg = args.res
+            raise FileNotFoundError
+
         youtube = get_authenticated_service(args)
         try:
             initialize_upload(youtube, args)
         except HttpError as e:
-            sys.exit("An HTTP error %d occurred:\n%s" % (e.resp.status, e.content))
+            makelog("An HTTP error %d occurred:\n%s" % (e.resp.status, e.content))
+            sys.exit()
 
     except Exception as e:
-        i = 1
-        while os.path.isfile(os.path.join(os.getcwd(), 'loga' + str(i) + '.txt')):
-            i += 1
-        with open('logb' + str(i) + '.txt', 'wt') as f:
-            f.write(traceback.format_exc())
+        if msg:
+            makelog(str(msg) + '\n' + traceback.format_exc())
+        else:
+            makelog(traceback.format_exc())
         print(e)
         print('오류 발생\n',
               '알 수 없는 오류가 발생했다면\n',
-              'logb' + str(i) + '.txt 및 오류가 난 상황 등을\n',
+              'logb(숫자).txt 및 오류가 난 상황 등을\n',
               'https://github.com/dc-creator/record-youtube/issues 에 올려주세요')
 
     finally:

@@ -8,9 +8,17 @@ import argparse
 import sys
 import traceback
 import random
+import json
 
 
 # pyinstaller --onefile autorecord.py
+
+def makelog(msg):
+    i = 1
+    while os.path.isfile(os.path.join(os.getcwd(), 'loga' + str(i) + '.txt')):
+        i += 1
+    with open('loga' + str(i) + '.txt', 'wt') as f:
+        f.write(msg)
 
 
 class TwitchRecorder:
@@ -26,13 +34,13 @@ class TwitchRecorder:
         self.videostatus = None
 
     def run(self):
-        '''
+        """
         # make sure the interval to check user availability is not less than 15 seconds
         if self.refresh < 15:
             print("Check interval should not be lower than 15 seconds.")
             self.refresh = 15
             print("System set check interval to 15 seconds.")
-        '''
+        """
 
         print("Checking for", self.username, "every", self.refresh, "seconds. Record with", self.quality, "quality.")
         self.loopcheck()
@@ -56,10 +64,8 @@ class TwitchRecorder:
                 status = 1
             else:
                 status = 0
-        except requests.exceptions.RequestException as e:
-            if e.response:
-                if e.response.reason == 'Not Found' or e.response.reason == 'Unprocessable Entity':
-                    status = 2
+        except json.decoder.JSONDecodeError:
+            status = 2
 
         return status, info
 
@@ -89,27 +95,29 @@ class TwitchRecorder:
                     if not os.path.isfile(recorded_filename):
                         break
 
+                res = 'recording was successful\n'
+
                 # start streamlink process
                 subprocess.call(
                     ["streamlink", "--twitch-disable-hosting", "--twitch-disable-ads", "twitch.tv/" + self.username,
                      self.quality, "-o", recorded_filename])
 
                 if os.path.isfile(recorded_filename) is False:
-                    print('채널이 ', self.quality, ' 화질을 지원하지 않으므로 최고화질로 녹화합니다.')
-                    subprocess.call(
+                    print('녹화실패, 최고 화질로 다시 시도합니다')
+                    res = subprocess.Popen(
                         ["streamlink", "--twitch-disable-hosting", "--twitch-disable-ads", "twitch.tv/" + self.username,
                          'best', "-o", recorded_filename])
 
-                print("녹화 완료.")
+                print("업로드 시작")
 
                 videoname = info['stream']['created_at'][:10].replace('-', '') \
-                            + ' ' + info['stream']['channel']['display_name']
+                            + ' ' + info['stream']['channel']['display_name'].replace('_', '')
 
                 arg = argparse.Namespace(auth_host_name='localhost', noauth_local_webserver=False,
                                          auth_host_port=[8080, 8090], logging_level='ERROR',
                                          file=recorded_filename, title=videoname,
                                          description='', category='22',
-                                         keywords='', privacyStatus=self.videostatus)
+                                         keywords='', privacyStatus=self.videostatus, res=res)
                 while True:
                     if not os.path.isfile(os.path.join(os.getcwd(), 'temp.pickle')):
                         with open('temp.pickle', 'wb') as f:
@@ -120,7 +128,8 @@ class TwitchRecorder:
 
                 os.startfile('upload_video.exe')
                 print('유투브 업로드용 프로그램 실행')
-                time.sleep(self.refresh)
+                print('15초 뒤에 다시 탐색을 시작합니다')
+                time.sleep(15)
 
 
 def main():
@@ -148,15 +157,11 @@ def main():
         twitch_recorder.run()
 
     except Exception as e:
-        i = 1
-        while os.path.isfile(os.path.join(os.getcwd(), 'loga' + str(i) + '.txt')):
-            i += 1
-        with open('loga' + str(i) + '.txt', 'wt') as f:
-            f.write(traceback.format_exc())
+        makelog(traceback.format_exc())
         print(e)
         print('오류 발생\n',
               '알 수 없는 오류가 발생했다면\n',
-              'loga' + str(i) + '.txt 및 오류가 난 상황 등을\n',
+              'loga(숫자).txt 및 오류가 난 상황 등을\n',
               'https://github.com/dc-creator/record-youtube/issues 에 올려주세요\n',
               '이 프로그램은 10초 후에 종료됩니다')
         time.sleep(10)
