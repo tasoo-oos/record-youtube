@@ -3,9 +3,9 @@
 
 automatically record twitch streams and upload it on youtube
 
-제가 바빠서 업뎃은 많지 않을겁니다
+제가 바빠서 업뎃은 없을겁니다
 
-I am busy so updates or bugfixes will be hard to see.
+I am busy so updates or bugfixes are unavaluable.
 
 ## requirements
 만약 아직 스트림링크가 없다면 https://streamlink.github.io/ 에서 다운받으십시오. 환경변수에 프로그램이 추가되어야 합니다.
