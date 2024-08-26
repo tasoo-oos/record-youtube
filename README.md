@@ -3,9 +3,10 @@
 
 automatically record twitch streams and upload it on youtube
 
-제가 바빠서 업뎃은 없을겁니다
+트위치 m3u8 관련 업데이트 및 트위치 코리아 철수로 인해, 더 이상의 업데이트는 진행하지 않습니다.
 
-I am busy so updates or bugfixes are unavaluable.
+Due to updates related to Twitch M3U8 and the Twitch business in Korea being shut down, I will not be making any further updates.
+
 
 ## requirements
 만약 아직 스트림링크가 없다면 https://streamlink.github.io/ 에서 다운받으십시오. 환경변수에 프로그램이 추가되어야 합니다.
